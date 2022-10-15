@@ -26,9 +26,22 @@ const db = mysql.createConnection(
     console.log('Connected to the tracker database.')
 )
 
+
 db.query(`SELECT * FROM department`, (err, rows) => {
     console.log(rows);
   });
+
+// Create a department
+// const sql = `INSERT INTO department (id, name)
+//                VALUES (?,?)`;
+// const params = [5, 'Marketing'];
+
+// db.query(sql, params, (err, result) => {
+//     if (err) {
+//         console.log(err);
+//     }
+//     console.log(result);
+// });
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
