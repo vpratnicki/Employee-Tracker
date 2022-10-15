@@ -43,6 +43,11 @@ db.query(`SELECT * FROM department`, (err, rows) => {
 //     console.log(result);
 // });
 
+// view table in sql that compbines roles and departments:
+// SELECT role.*, department.department_name 
+// FROM role 
+// LEFT JOIN department ON role.depart_id = department.id;
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
