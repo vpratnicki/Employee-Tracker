@@ -1,53 +1,73 @@
-const express = require('express');
-const inquirer = require('inquirer');
-const mysql = require('mysql2');
+const db = require("./db/connection");
+const inquirer = require("inquirer");
+const cTable = require("console.table");
 
-const PORT = process.env.PORT || 3002;
-const app = express();
+// prompt the user for their command
+function promptEmployee() {
+    inquirer
+      .prompt({
+        type: "list",
+        name: "choice",
+        message: "what do you want",
+        choices: ["view all departments", "view all roles", "view all employees", "quit"],
+      })
+      .then(function (response) {
+        console.log(response);
+        if (response.choice === "view all departments") {
+          // View all departments
+          db.query(`SELECT * FROM department`, (err, rows) => {
+            console.table(rows);
+            promptEmployee();
+          });
+        }
+    
+        if (response.choice === "view all roles") {
+          // shows role table
+          db.query(`SELECT role.id, role.title, department.department_name AS department, role.salary 
+                    FROM role 
+                    LEFT JOIN department ON role.depart_id = department.id`, (err, rows) => {
+            console.table(rows);
+            promptEmployee();
+          });
+        }
+    
+        if (response.choice === "view all employees") {
+          // shows employee table
+          db.query(`SELECT * FROM employees`, (err, rows) => {
+            console.table(rows);
+            promptEmployee();
+          });
+        }
+    
+        if (response.choice = "quit") {
+            return;
+        }
+        
+    
+      });
 
-// Express middleware
-app.use(express.urlencoded({ extended: false}));
-app.use(express.json());
+}
 
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-    res.status(404).end();
-  });
-// connect to database
-const db = mysql.createConnection(
-    {
-        host: 'localhost',
-        // your MySQL username,
-        user: 'root',
-        // your MySQL password
-        password: 'password',
-        database: 'tracker'
-    },
-    console.log('Connected to the tracker database.')
-)
+promptEmployee()
 
 
-db.query(`SELECT * FROM department`, (err, rows) => {
-    console.log(rows);
-  });
-
-// Create a department
-// const sql = `INSERT INTO department (id, name)
-//                VALUES (?,?)`;
-// const params = [5, 'Marketing'];
-
-// db.query(sql, params, (err, result) => {
-//     if (err) {
-//         console.log(err);
-//     }
-//     console.log(result);
+// // view table in sql that combines roles and departments:
+// db.query(`SELECT role.*, department.department_name
+// FROM role
+// LEFT JOIN department ON role.depart_id = department.id`, (err, rows) => {
+//     console.table(rows);
 // });
 
-// view table in sql that compbines roles and departments:
-// SELECT role.*, department.department_name 
-// FROM role 
-// LEFT JOIN department ON role.depart_id = department.id;
+// //  SELECT employees.id, employees.first_name, role.title FROM employees LEFT JOIN role ON employees.role_id = role.id;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// // Create a department
+// // const sql = `INSERT INTO department (id, name)
+// //                VALUES (?,?)`;
+// // const params = [5, 'Marketing'];
+
+// // db.query(sql, params, (err, result) => {
+// //     if (err) {
+// //         console.log(err);
+// //     }
+// //     console.log(result);
+// // });
