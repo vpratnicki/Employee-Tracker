@@ -33,7 +33,11 @@ function promptEmployee() {
     
         if (response.choice === "view all employees") {
           // shows employee table
-          db.query(`SELECT * FROM employees`, (err, rows) => {
+          db.query(`SELECT employees.id, employees.first_name, employees.last_name, role.title, department.department_name AS department, role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager
+                    FROM employees
+                    LEFT JOIN role ON employees.role_id = role.id
+                    LEFT JOIN department ON role.depart_id = department.id
+                    LEFT JOIN employees manager ON employees.manager_id = manager.id`, (err, rows) => {
             console.table(rows);
             promptEmployee();
           });
