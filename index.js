@@ -9,11 +9,16 @@ function promptEmployee() {
         type: "list",
         name: "choice",
         message: "what do you want",
-        choices: ["view all departments", "view all roles", "view all employees", "quit"],
+        choices: ["View All Departments", 
+                  "View All Roles", 
+                  "View All Employees", 
+                  "Add Department",
+                  "Add Role",
+                  "Quit"],
       })
       .then(function (response) {
         console.log(response);
-        if (response.choice === "view all departments") {
+        if (response.choice === "View All Departments") {
           // View all departments
           db.query(`SELECT * FROM department`, (err, rows) => {
             console.table(rows);
@@ -21,7 +26,7 @@ function promptEmployee() {
           });
         }
     
-        if (response.choice === "view all roles") {
+        if (response.choice === "View All Roles") {
           // shows role table
           db.query(`SELECT role.id, role.title, department.department_name AS department, role.salary 
                     FROM role 
@@ -31,7 +36,7 @@ function promptEmployee() {
           });
         }
     
-        if (response.choice === "view all employees") {
+        if (response.choice === "View All Employees") {
           // shows employee table
           db.query(`SELECT employees.id, employees.first_name, employees.last_name, role.title, department.department_name AS department, role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager
                     FROM employees
@@ -42,15 +47,91 @@ function promptEmployee() {
             promptEmployee();
           });
         }
-    
+
+        if (response.choice === "Add Department") {
+          addDepartment();
+        }
+
+        if (response.choice === "Add Role") {
+          addRole();
+        }
+
         if (response.choice = "quit") {
             return;
         }
         
     
       });
+};
 
-}
+// add department
+addDepartment = () => {
+  inquirer.prompt([{
+    type: 'input',
+    name: 'addDept',
+    message: "What department would you like to add?"
+    }
+  ])
+  .then(answer => {
+    const sql = `INSERT INTO department (department_name)
+                 VALUES (?)`;
+    db.query(sql, answer.addDept, (err, result) => {
+      if (err) throw err;
+      console.log('Added ' + answer.addDept + ' to Departments');
+
+      promptEmployee();
+    })
+  })
+};
+
+// add role
+addRole = () => {
+  inquirer.prompt([{
+    type: 'input',
+    name: 'roleName',
+    message: 'What is the name of the role you would like to add?'
+  },
+  {
+    type: 'input',
+    name: 'roleSalary',
+    message: 'What is the salary of this role?'
+  }
+  ])
+  .then(answer => {
+    const params = [answer.roleName, answer.roleSalary];
+
+    // get the departments from table
+    const sql = `SELECT department_name, id 
+                 FROM department`;
+
+    db.query(sql, (err, data) => {
+      if (err) throw err;
+
+      const dept = data.map(({ id, department_name }) => ({ name: department_name, value: id }));
+
+      inquirer.prompt([{
+          type: 'list',
+          name: 'dept',
+          message: 'Which department does this role belong to?',
+          choices: dept
+      }
+    ])
+    .then(deptChoice => {
+      const dept = deptChoice.dept;
+      params.push(dept);
+
+      const sql = `INSERT INTO role (title, salary, depart_id)
+                   VALUES (?, ?, ?)`;
+      db.query(sql, params, (err, result) => {
+        if (err) throw err;
+        console.log('Added ' + answer.roleName + ' to roles!');
+
+        promptEmployee();
+      });
+    });
+    });
+  });
+};
 
 promptEmployee()
 
