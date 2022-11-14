@@ -3,70 +3,108 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 
 // prompt the user for their command
-function promptEmployee() {
-    inquirer
-      .prompt({
-        type: "list",
-        name: "choice",
-        message: "What would you like to do?",
-        choices: ["View All Departments", 
-                  "View All Roles", 
-                  "View All Employees", 
-                  "Add Department",
-                  "Add Role",
-                  "Add Employee",
-                  "Quit"],
-      })
+promptUser = () => {
+  console.log(`
+  ==============
+  `)
+    inquirer.prompt([{
+        type: 'list',
+        name: 'choice',
+        message: 'What would you like to do?',
+        choices: ['View All Departments', 
+                  'View All Roles', 
+                  'View All Employees', 
+                  'Add Department',
+                  'Add Role',
+                  'Add Employee',
+                  'Quit'],
+      }])
       .then(function (response) {
-        console.log(response);
-        if (response.choice === "View All Departments") {
-          // View all departments
-          db.query(`SELECT * FROM department`, (err, rows) => {
-            console.table(rows);
-            promptEmployee();
-          });
+        // console.log(response);
+
+        if (response.choice === 'View All Departments') {
+          viewDepartments();
         }
     
-        if (response.choice === "View All Roles") {
-          // shows role table
-          db.query(`SELECT role.id, role.title, department.department_name AS department, role.salary 
-                    FROM role 
-                    LEFT JOIN department ON role.depart_id = department.id`, (err, rows) => {
-            console.table(rows);
-            promptEmployee();
-          });
+        if (response.choice === 'View All Roles') {
+          viewRoles();
         }
     
-        if (response.choice === "View All Employees") {
-          // shows employee table
-          db.query(`SELECT employees.id, employees.first_name, employees.last_name, role.title, department.department_name AS department, role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager
-                    FROM employees
-                    LEFT JOIN role ON employees.role_id = role.id
-                    LEFT JOIN department ON role.depart_id = department.id
-                    LEFT JOIN employees manager ON employees.manager_id = manager.id`, (err, rows) => {
-            console.table(rows);
-            promptEmployee();
-          });
+        if (response.choice === 'View All Employees') {
+          viewEmployees();
         }
 
-        if (response.choice === "Add Department") {
+        if (response.choice === 'Add Department') {
           addDepartment();
         }
 
-        if (response.choice === "Add Role") {
+        if (response.choice === 'Add Role') {
           addRole();
         }
 
-        if (response.choice = "Add Employee") {
+        if (response.choice = 'Add Employee') {
           addEmployee();
         }
 
-        if (response.choice = "Quit") {
+        if (response.choice = 'Quit') {
             return;
         }
-        
-    
       });
+};
+
+// view all departments
+viewDepartments = () => {
+  console.log(`
+  ===============
+  All Departments
+  ===============
+  `);
+  const sql = `SELECT * FROM department`;
+
+  db.query(sql, (err, rows) => {
+    if (err) throw err;
+
+    console.table(rows);
+    promptUser();
+  });
+};
+
+// view all roles
+viewRoles = () => {
+  console.log(`
+  =========
+  All Roles
+  =========
+  `);
+  const sql = `SELECT role.id, role.title, department.department_name AS department, role.salary 
+               FROM role 
+               LEFT JOIN department ON role.depart_id = department.id`;
+  db.query(sql, (err, rows) => {
+    if (err) throw err;
+    
+    console.table(rows);
+    promptUser();
+  });
+};
+
+// view all employees
+viewEmployees = () => {
+  console.log(`
+  =============
+  All Employees
+  =============
+  `);
+  const sql = `SELECT employees.id, employees.first_name, employees.last_name, role.title, department.department_name AS department, role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager
+               FROM employees
+               LEFT JOIN role ON employees.role_id = role.id
+               LEFT JOIN department ON role.depart_id = department.id
+               LEFT JOIN employees manager ON employees.manager_id = manager.id`
+  db.query(sql, (err, rows) => {
+    if (err) throw err;
+
+  console.table(rows);
+  promptUser();
+  });
 };
 
 // add department
@@ -84,7 +122,7 @@ addDepartment = () => {
       if (err) throw err;
       console.log('Added ' + answer.addDept + ' to Departments');
 
-      promptEmployee();
+      promptUser();
     })
   })
 };
@@ -131,7 +169,7 @@ addRole = () => {
         if (err) throw err;
         console.log('Added ' + answer.roleName + ' to roles!');
 
-        promptEmployee();
+        promptUser();
       });
     });
     });
@@ -140,15 +178,16 @@ addRole = () => {
 
 // add employee
 addEmployee = () => {
-  inquirer.prompt([{
+  inquirer.prompt([
+    {
     type: 'input',
     name: 'firstName',
-    message: 'What is the first name of the employee?'
+    message: "What is the first name of the employee?"
   },
   {
     type: 'input',
     name: 'lastName',
-    message: 'What is the last name of the employee?'
+    message: "What is the last name of the employee?"
   }
   ])
   .then(answer => {
@@ -165,7 +204,7 @@ addEmployee = () => {
       inquirer.prompt([{
         type: 'list',
         name: 'roleName',
-        message: 'What is the role of the employee?',
+        message: "What is the role of the employee?",
         choices: role
       }
     ])
@@ -184,7 +223,7 @@ addEmployee = () => {
         inquirer.prompt([{
           type: 'list',
           name: 'manager',
-          message: 'Who is the employees manager?',
+          message: "Who is the employee's manager?",
           choices: managers
         }])
         .then(managerChoice => {
@@ -197,7 +236,7 @@ addEmployee = () => {
             if (err) throw err;
             console.log('Employee has been added!')
 
-          promptEmployee();
+            viewEmployees();
           });
         });
       });
@@ -206,4 +245,4 @@ addEmployee = () => {
   });
 };
 
-promptEmployee();
+promptUser()
