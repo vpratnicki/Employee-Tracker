@@ -24,30 +24,18 @@ promptUser = () => {
 
         if (response.choice === 'View All Departments') {
           viewDepartments();
-        }
-    
-        if (response.choice === 'View All Roles') {
+        } else if (response.choice === 'View All Roles') {
           viewRoles();
-        }
-    
-        if (response.choice === 'View All Employees') {
+        } else if (response.choice === 'View All Employees') {
           viewEmployees();
-        }
-
-        if (response.choice === 'Add Department') {
+        } else if (response.choice === 'Add Department') {
           addDepartment();
-        }
-
-        if (response.choice === 'Add Role') {
+        } else if (response.choice === 'Add Role') {
           addRole();
-        }
-
-        if (response.choice = 'Add Employee') {
-          addEmployee();
-        }
-
-        if (response.choice = 'Quit') {
-            return;
+        } else if (response.choice = 'Add Employee') {
+          addAEmployee();
+        } else if (response.choice = 'Quit') {
+          return;
         }
       });
 };
@@ -64,13 +52,14 @@ viewDepartments = () => {
   db.query(sql, (err, rows) => {
     if (err) throw err;
 
+    // console.log (rows);
     console.table(rows);
     promptUser();
   });
 };
 
 // view all roles
-viewRoles = () => {
+const viewRoles = () => {
   console.log(`
   =========
   All Roles
@@ -82,13 +71,14 @@ viewRoles = () => {
   db.query(sql, (err, rows) => {
     if (err) throw err;
     
+    // console.log (rows);
     console.table(rows);
     promptUser();
   });
 };
 
 // view all employees
-viewEmployees = () => {
+const viewEmployees = () => {
   console.log(`
   =============
   All Employees
@@ -108,7 +98,7 @@ viewEmployees = () => {
 };
 
 // add department
-addDepartment = () => {
+const addDepartment = () => {
   inquirer.prompt([{
     type: 'input',
     name: 'addDept',
@@ -128,7 +118,7 @@ addDepartment = () => {
 };
 
 // add role
-addRole = () => {
+const addRole = () => {
   inquirer.prompt([{
     type: 'input',
     name: 'roleName',
@@ -177,7 +167,7 @@ addRole = () => {
 };
 
 // add employee
-addEmployee = () => {
+const addAEmployee = () => {
   inquirer.prompt([
     {
     type: 'input',
