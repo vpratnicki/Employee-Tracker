@@ -5,7 +5,9 @@ const cTable = require("console.table");
 // prompt the user for their command
 promptUser = () => {
   console.log(`
-  ==============
+  ====================
+  = Employee Tracker =
+  ====================
   `);
   inquirer
     .prompt([
@@ -22,32 +24,33 @@ promptUser = () => {
           "Add Employee",
           "Update an Employee Role",
           "Quit",
-        ],
-      },
+        ]
+      }
     ])
     .then(function (response) {
       // console.log(response);
 
-      if (response.choice === "View All Departments") {
-        viewDepartments();
-      } else if (response.choice === "View All Roles") {
-        viewRoles();
-      } else if (response.choice === "View All Employees") {
-        viewEmployees();
-      } else if (response.choice === "Add Department") {
-        addDepartment();
-      } else if (response.choice === "Add Role") {
-        addRole();
-        // } else if (response.choice = 'Add Employee') {
-        //   addAEmployee();
-      } else if ((response.choice = "Update an Employee Role")) {
-        updateRole();
-      } else if ((response.choice = "Quit")) {
+      switch (response.choice) {
+        case "View All Departments": viewDepartments();
+          break;
+        case "View All Roles": viewRoles();
+          break;
+        case "View All Employees": viewEmployees();
+          break;
+        case "Add Department": addDepartment();
+          break;
+        case "Add Role": addRole();
+          break;
+        case "Add Employee": addAEmployee();
+          break;
+        case "Update an Employee Role": updateRole();
+          break;
+        case "Quit": 
         console.log("Thank you, have a great day! ");
-        return;
+        process.exit();
       }
-    });
-};
+    }).catch(err => console.error(err));
+}
 
 // view all departments
 viewDepartments = () => {
