@@ -17,6 +17,7 @@ promptUser = () => {
                   'Add Department',
                   'Add Role',
                   'Add Employee',
+                  'Update an Employee Role',
                   'Quit'],
       }])
       .then(function (response) {
@@ -34,7 +35,10 @@ promptUser = () => {
           addRole();
         } else if (response.choice = 'Add Employee') {
           addAEmployee();
+        } else if (response.choice = 'Update an Employee Role') {
+          updateRole();
         } else if (response.choice = 'Quit') {
+          console.log("Thank you, have a great day! ");
           return;
         }
       });
@@ -235,4 +239,47 @@ const addAEmployee = () => {
   });
 };
 
+// update an employee role
+const updateRole = () => {
+  // get list of employees
+  const employeeSql = `SELECT first_name, last_name 
+                 FROM employees`;
+  db.query(employeeSql, (err, data) => {
+                  if (err) throw err;
+  const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + '' + last_name, value: id }));
+  inquirer.prompt([
+    {
+      type: 'list',
+      message: 'Which employees role do you want to update?',
+      name: 'employeeName',
+      choices: employees
+    }
+  ])
+
+  
+  })
+
+  const roleChoices = `SELECT title
+                  FROM role`;
+    {
+      type: 'input',
+      message: 'Which role do you want to assign to the selected employee?',
+      name: 'employeeRole',
+      choices: roleChoices
+    }
+  ])
+  .then(employChoice => {
+    const role = employChoice.dept;
+    params.push(role);
+
+    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id)
+                 VALUES (?, ?, ?)`;
+    db.query(sql, params, (err, result) => {
+      if (err) throw err;
+      console.log('Added ' + answer.roleName + ' to roles!');
+
+      promptUser();
+    });
+  });
+}
 promptUser()
