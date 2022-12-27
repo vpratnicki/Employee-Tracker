@@ -53,7 +53,7 @@ promptUser = () => {
 }
 
 // view all departments
-viewDepartments = () => {
+const viewDepartments = () => {
   console.log(`
   ===============
   All Departments
@@ -126,7 +126,7 @@ const addDepartment = () => {
         if (err) throw err;
         console.log("Added " + answer.addDept + " to Departments");
 
-        promptUser();
+        viewDepartments();
       });
     });
 };
@@ -180,7 +180,7 @@ const addRole = () => {
               if (err) throw err;
               console.log("Added " + answer.roleName + " to roles!");
 
-              viewEmployees();
+              viewRoles();
             });
           });
       });
@@ -247,8 +247,8 @@ const addAEmployee = () => {
                   },
                 ])
                 .then((managerChoice) => {
-                  const managerName = managerChoice.managerName;
-                  params.push(managerName);
+                  const manager = managerChoice.manager;
+                  params.push(manager);
 
                   const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id)
                        VALUES (?, ?, ?, ?)`;
@@ -309,7 +309,7 @@ const updateRole = () => {
               if (err) throw err;
             }
           );
-          console.log("Employee role has been updated!");
+          console.log('Employee role has been updated!');
           viewEmployees();
         });
     });
